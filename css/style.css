@@ -53,11 +53,27 @@ body {
 }
 
 p {
-	font-family:arial;
+  font-size: 1em; /* default for site; equiv to 16 px */
+  line-height: 1.75em; /* default line spacing */
+	font-family: 'Open Sans', sans-serif;
   color: black;
 }
 
-h1, h2 {
-	color: blue;
+h1 {
+  font-size: 4.5em; /* golden ratio, 1:1.618 */
+	font-family: 'Mr De Haviland', cursive;
+  color: blue;
 	text-align:center;
+}
+
+h3 {
+  font-size: 2.618em;
+  font-family: 'Neuton', serif;
+  /*font-family: 'Open Sans', sans-serif;*/
+  color: blue;
+}
+
+footer {
+  font-size: 0.62em;
+  font-family: 'Mr De Haviland', cursive;
 }
