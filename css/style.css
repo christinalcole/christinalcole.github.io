@@ -71,9 +71,20 @@ h3 {
   font-family: 'Neuton', serif;
   /*font-family: 'Open Sans', sans-serif;*/
   color: blue;
-  margin: 50px;
+  margin: 50px 50px 0px;
   padding: 10px;
   text-align: center;
+}
+
+h4{
+  font-size: 1.618em;
+  font-family: 'Neuton', serif;
+  /*font-family: 'Open Sans', sans-serif;*/
+  color: blue;
+  padding: 1px;
+  margin-bottom: 50px;
+  text-align: center;
+  font-style: italic;
 }
 
 footer {
@@ -133,15 +144,33 @@ nav {
   padding: 10px;
 }
 
-a:link, a:visited{
-  color: black;
+a:link {
+  color: blue;
   text-decoration: none;
+} 
+
+a:visited{
+  color: black;
 }
 
 a:hover{
-  color: blue;
+  color: orange;
 }
 
-a:active{
-  color: orange;
+.fa-heart{
+  color: red;
+}
+
+.fa-smile-o{
+  color: blue;
+  text-shadow: 2px 2px 2px #ddd;
+}
+
+#special-emphasis{
+  color: blue;
+  font-style: italic;
+}
+
+em{
+  font-style: italic;
 }
