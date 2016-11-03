@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html lang = "en">
+	<head>
+		<meta charset="utf-8">
+		<title>Hello World, ready...or not! - Blog Post 2</title>
+		<link rel="stylesheet" href="css/style.css">
+		<link href="https://fonts.googleapis.com/css?family=Mr+De+Haviland|Neuton|Open+Sans" rel="stylesheet">
+		<script src="https://use.fontawesome.com/d3123bde0f.js"></script>
+	</head>
+
+	<body>
+		<header>
+			<div id="logo">
+				<h1> Hello World, ready...or not!</h1>
+			</div>
+
+			<!-- site links !-->
+			<nav><a href="index.html">About</a> | <a href="blog.html">Blog</a> </nav>
+		</header>
+
+		<h3>Building a CLI Gem From the Middle-In...and Out</h3>
+		<h4>posted November, 2016</h4>
+
+		<section>
+			<p>If you're not familiar with yacht racing, the basic model is that you have a bunch of boats in direct competition, racing around a marked course. A single regatta can consist of multiple races (similar to heats in a track meet), or it can be a one-time contest over the distance.</p>  
+
+			<p>If all of the participating boats happen to be of the same kind (think "stock car" as a rough analogy), then the yacht race may be called a "one-design" regatta. Since the boats are virtually identical, the boats start at the same time: the first to cross the finish is the winner. When the boats are not the exactly the same (heading more into Formula-1 territory, and beyond), a handicapping system is used. <span><a href = "http://www.ussailing.org/racing/offshore-big-boats/" target=_blank>There are a couple of different systems out there</a></span>--but the goal is always to cancel out the impact of the boat itself, so that finish results reflect crew skill. What's important here is that boats of different handicaps may race a course together, but will be scored only against boats of the same handicap. A boat's final regatta standings can reflect its performance within its handicap, against the entire fleet of entrants, or both. Finally, if regattas feature both one-design and handicapped boats, the one-design boats may be grouped into one "handicap" based on boat type, for ease of race organization. Tucking this overview away...</p> 
+
+			<p>I've just finished building my first Ruby gem ever: <span><a href = "https://rubygems.org/gems/regatta_results/versions/0.3.2" target=_blank>regatta_results</a></span> provides a command-line interface (CLI) to view (scraped) details of the 2016 Wednesday Night Race (WNR) series scored by the Annapolis Yacht Club. While coding this project, I learned that there are two development approaches: outside-in and inside-out.</p>
+
+			<p>With the outside-in approach, development starts "outside" with the user, and successively moves "inside" to the inner bits of code. For this gem project, outside means broad brushstrokes about what the user will see when the application runs, then systematically converting those ideas and expectations into an interface, object classes, methods, etc.--basically going "in" to the application. Instead of worrying about actual details, dependencies and data are mocked until the overall program structure "works." At this stage, faked components are iteratively converted to real implementations.</p>
+
+			<p>With the inside-out approach, development starts "inside" at the class/object level, and coding decisions are made that successively build "out" the application. Inside-out doesn't imply that the final product is a true-unknown: it simply shifts the focus to the object and class components first, then to object collaborations, then to an interface that reveals these relationships to the user. Technically, there's no reason why mocked data couldn't be used here, too--except that an object-first progression would tend to minimize (or eliminate) its need.</p>
+
+			<p>Each has its advantages: if you know (or are constrained) by an interface, it makes sense to work outside-in. On the other hand, if you're not 100% on how code should look in the end, then starting with core objects and letting design evolve as requirements are known lends itself to inside-out. Then, there's my approach for this gem, or what I'm calling "from the middle-in...and out."</p>
+
+			<p>When I started my gem, I had a clear idea of what I wanted it to do. The user would type some command, and the gem would display a list of 2016 regattas hosted by the Annapolis Yacht Club. The user would be prompted to select a regatta; the gem would then return a list of the boat handicaps scored for that regatta. After selecting a handicap, the user would select from a list of participating boats, in order to view the results of a single, specific boat. Of course, there'd be options to exit, pick another boat, pick another regatta, etc.</p>
+
+			<p>Since I knew what I wanted, I started coding outside-in. Everything was great until I was ready to stub out classes. Basing from real life, it was easy. Using capitalization to denote potential object classes: Regattas have many Boats, and many Handicaps through the Boats that participate in the Regatta. A Boat has many Regattas through its Handicap--because a boat doesn't just "enter" a regatta, it enters as a participant with a given handicap. Boats have certain unique attributes, including its Handicap. Finally, Regattas can have many Races ("heats"), and a Race has many Boats that all share one Handicap. Drop in some fake data, keep building in. Easy-peasy.</p>
+
+			<p>Or not, because the (only) web source for all of this sailing data isn't organized in a way that supports creating these objects (Regatta, Race, Handicap, Boat) in any sort of iterative object-oriented manner! This isn't commentary on the site--it's fine (although I'd welcome a little less td, tr tags, a little more nested class and id attributes...). It was simply that I'd spent time creating an interface with unobtainable object requirements.</p>
+
+			<p>I briefly considered switching to an inside-out model. My thinking was that I could (should) first decide what type(s) of object(s) may be reasonably generated from the site--since that was the breaking point with outside-in--then establish relationships, then a CLI. This approach, though, left me feeling like I was creating models that didn't fit either a real-world or object-oriented paradigm: if the model doesn't "work," what's the point? So I did what any reasonable person would do: I adjusted scope, then went down the middle.</p>
+
+			<p>In adjusting scope, I decided to focus only on a particular set of regattas, the Wednesday Night Race (WNR) series. Future-Me is interested in coding a web app that relates to these series, so I figured a narrower scope today would give me the best opportunity to reuse code tomorrow. As for down the middle? I didn't want to completely abandon the CLI code from earlier (out)--but since I knew I couldn't instantiate its as-written dependencies, I focused on what I could create (in), then moved back and forth in the gem design from there.</p>
+
+			<p>With clarity of "middle" vision, writing the code for Boat and (a web) Scraper classes that collaborated together was pretty straightforward. The Scraper class has no responsibilities except to collect and return external data: its class methods provide the input to instantiate a series of Boat objects, which in turn have attributes tied to the boat's performance in a particular WNR series. Coding "out" meant revising existing CLI methods to expose a boat's attributes to the user in a meaningful way: in this case, by tying the boat's handicap (and thus the context of its race performance) to the order of its instantiation (I'll be the first to admit: not very elegant--but definitely functional).</p>
+
+			<p>Going from the middle-in-and-out doesn't necessarily result in the DRYest of code. Since handicap is effectively hard-assigned to a range of boat instances, that assignment can break if the organization of the external data changes; not too likely in this case--but nonetheless... Hard-assigning forced duplication of detailed-view code within the CLI. If handicap was dynamically assigned at time of boat instantiation--and so was a specific instance attribute--series-specific methods could be refactored into a single universal one. I also have some concerns that the CLI class knows a bit more about the Boat and Scraper classes than it perhaps should; then again, it is the coding equivalent of a middle-man... In some future version of the gem, I'd like to re-introduce a Regatta class: not only would this better mimic real-life, but I think that this class would be key to extending the functionality of this gem to provide details of other, non-WNR yacht races...perhaps when Future-Me starts working on that web app.
+			</p>
+			
+		</section>
+
+		<footer>
+			&copy 2016 C. Cole 
+		</footer>
+
+	</body>
+
+</html>
+
+
