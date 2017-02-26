@@ -149,7 +149,7 @@ nav {
 a:link {
   color: blue;
   text-decoration: none;
-} 
+}
 
 a:visited{
   color: black;
@@ -175,4 +175,11 @@ a:hover{
 
 em{
   font-style: italic;
+}
+
+pre code{
+  display: block;
+  background-color: #EEE;
+  border: 1px solid #000;
+  padding: 20px;
 }

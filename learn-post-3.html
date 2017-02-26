@@ -33,14 +33,16 @@
 
       <p>…Turns out, there is.  Active Record supports the aliasing of associations—meaning a “creator” attribute could be added to the Book model, without the need to create (yet another) model, Creator.  Since creators are, fundamentally, users, a book can belong to a creator, and Active Record “taught” that a creator is really a user:</p>
 
-      <code>
-      class Book < ActiveRecord::Base
-      	has_many :user_books
-      	has_many :users, through: :user_books #links books and users via a join
+      <pre>
+        <code>
+        class Book < ActiveRecord::Base
+        	has_many :user_books
+        	has_many :users, through: :user_books #links books and users via a join
 
-      	belongs_to :creator,  :class_name => “User”  #here’s the magic
-      end
-      </code>
+        	belongs_to :creator,  :class_name => “User”  #here’s the magic
+        end
+        </code>
+      </pre>
 
       <p>In that last line of code, :class_name => “User” translates into vernacular English, more or less, as “hey, when you see a foreign key creator_id in the Books table, don’t go looking for a Creators table; instead, understand that creator_id just points to a User, so look it up in the Users table.”</p>
 
@@ -48,11 +50,13 @@
 
       <p>Active Record to the rescue again!  The find_or_create_by() method can be used with a block:</p>
 
-      <code>
-      Book.find_or_create_by(params[:book]) do |b|
-      	b.creator_id = current_user.id
-      end
-      </code>
+      <pre>
+        <code>
+        Book.find_or_create_by(params[:book]) do |b|
+        	b.creator_id = current_user.id
+        end
+        </code>
+      </pre>
 
       <p>The block is only executed when the book object is being created.  When the book object is accessed the second, third, and nth times—via the find part of the method—the block is ignored.  So what happens with Jack and Jill?  Again, in vernacular:
       	1. Jack (user_id = 1) submits a request to add a new book, Nursery Rhymes by Mother Goose, to his collection.
