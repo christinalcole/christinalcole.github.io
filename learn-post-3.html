@@ -61,12 +61,12 @@
       <p>The block is only executed when the book object is being created.  When the book object is accessed the second, third, and nth times—via the find part of the method—the block is ignored.  So what happens with Jack and Jill?  Again, in vernacular:</p>
 
 			<ol>
-      	1. Jack (<code>user_id = 1</code>) submits a request to add a new book, <em>Nursery Rhymes</em> by Mother Goose, to his collection.
-      	2. Active Record looks for a matching record in the database; it doesn’t exist, so it creates a new book object.
-      	3. Since the object is created, the block code is executed, and the <code>creator_id</code> is set to 1, because Jack is the current user.
-      	4. Jill (<code>user_id = 2</code>) logs in, and submits a request to add a new book, <em>Nursery Rhymes</em> by Mother Goose, to her collection.
-      	5. Active Record looks for a matching record in the database; it exists, so the previously created record is returned.
-      	6. Since the object is found—not created—the block code is ignored, and the <code>creator_id</code> attribute maintains its value of 1.
+      	1. Jack (<code>user_id = 1</code>) submits a request to add a new book, <em>Nursery Rhymes</em> by Mother Goose, to his collection.<br>
+      	2. Active Record looks for a matching record in the database; it doesn’t exist, so it creates a new book object.<br>
+      	3. Since the object is created, the block code is executed, and the <code>creator_id</code> is set to 1, because Jack is the current user.<br>
+      	4. Jill (<code>user_id = 2</code>) logs in, and submits a request to add a new book, <em>Nursery Rhymes</em> by Mother Goose, to her collection.<br>
+      	5. Active Record looks for a matching record in the database; it exists, so the previously created record is returned.<br>
+      	6. Since the object is found—not created—the block code is ignored, and the <code>creator_id</code> attribute maintains its value of 1.<br>
 			</ol>
 
       <p>Why does all of this matter?  Suppose Jill still decides she really doesn’t like <em>Nursery Rhymes</em> after all.  The Controller action says “Book model, get me this book Jill (no longer) wants.”  Active Record fetches the corresponding record from the database, returns it to the Controller.  Based on appropriate logic in the route action, the Controller says ‘Wait!  Jill didn’t create this record—so she can only remove it from her collection, not from the database.  View, render accordingly.”  View sends HTML to the Controller, which is sent on to Jill in response.  End result?  Jill sees that <em>Nursery Rhymes</em> by Mother Goose is no longer in her collection of Finer Things—but when Jack logs in later, the book is still in his collection, because the record still exists in the database.</p>
