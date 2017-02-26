@@ -23,32 +23,32 @@
 		<h4>posted February 25, 2017</h4>
 
 		<section>
-      <p>…Says the Controller (via Active Record) to the Book (or Song, or Artwork) model in my Sinatra app, The Finer Things Club.</p>
+      <p>…Says the Controller (via Active Record) to the Book (or Song, or Artwork) model in my Sinatra app, <a href="https://github.com/christinalcole/sinatra-finer-things">The Finer Things Club</a>.</p>
 
-      <p>The Finer Things Club app is based on the club of the same name that debuted in Season 4 of the US version of The Office: it’s a web app to allow users to curate their collection of favorite “fine” books, music, and art.  The app relies on a SQLite3 database engine to store user collections, and Active Record to manage the associations between users, books, music, and art.  A series of join tables allow multiple users to add a single book (e.g.) to their collections without repeating entry of that book to the database: instead, the users’ IDs are linked to the book via an appropriate join.</p>
+      <p>The Finer Things Club app is based on the club of the same name that debuted in Season 4 of the US version of <em>The Office</em>: it’s a web app allows users to curate their collection of favorite “fine” books, music, and art.  The app relies on a SQLite3 database engine to store user collections, and Active Record to manage the associations between users, books, music, and art.  A series of join tables allow multiple users to add a single book (e.g.) to their collections without repeating entry of that book record to the database: instead, the users’ record IDs are linked to the book's record ID via an appropriate join.</p>
 
-      <p>This kind of approach—letting users effectively “share” unique objects—creates a problem with regards to satisfying one of the project’s requirements, that users can delete their own content.  Suppose Jack likes Nursery Rhymes by Mother Goose.  Jill also likes Nursery Rhymes by Mother Goose.  But what if Jill decides she doesn’t like this book any longer, and wants to remove it from her collection?  Under the simplest CRUD implementation, deletion will remove the corresponding book object from the database—meaning it will also be removed from Jack’s collection.  Not so good!  Enter Active Record’s built-in find_or_create_by method, and association aliasing.</p>
+      <p>This kind of approach—letting users effectively “share” unique objects—creates a problem with regards to satisfying one of the project’s requirements, that users can delete their own content.  Suppose Jack likes <em>Nursery Rhymes</em> by Mother Goose.  Jill also likes <em>Nursery Rhymes</em> by Mother Goose.  But what if Jill decides--down the road--she doesn’t like this book any longer, and wants to remove it from her collection?  Under the simplest CRUD implementation, deletion will remove the corresponding book object from the database—meaning it will also be removed from Jack’s collection.  Not so good!  Enter Active Record’s built-in <code>find_or_create_by()</code> method, and association aliasing.</p>
 
-      <p>The find_or_create_by method does what it sounds like it does: it checks to see whether a database record exists by the specified attribute.  If the record exists in the database, Active Record returns that record.  If it doesn’t, Active Record creates it.  So if Jack wants to add Nursery Rhymes to his collection of fine books, the call Book.find_or_create_by(name: “Nursery Rhymes”, author: “Mother Goose”) sends Active Record to query the Book model (table).  Record doesn’t exist, so the record is created and returned.  Later, when Jill wants to add the same book to her collection, Book.find_or_create_by(name: “Nursery Rhymes”, author: “Mother Goose”) returns the existing record instead of creating a new one. If only there was a (relatively simple) way to keep track of which user created the object in the first place…</p>
+      <p>The <code>find_or_create_by()</code> method does what it sounds like it does: it checks to see whether a database record exists by the specified attribute.  If the record exists in the database, Active Record returns that record.  If it doesn’t, Active Record creates it.  So if Jack wants to add Nursery Rhymes to his collection of fine books, the call <code>Book.find_or_create_by(name: “Nursery Rhymes”, author: “Mother Goose”)</code> sends Active Record to query the Book model (table).  Record doesn’t exist, so the record is created and returned.  Later, when Jill wants to add the same book to her collection, <code>Book.find_or_create_by(name: “Nursery Rhymes”, author: “Mother Goose”)</code> returns the existing record instead of creating a new one. If only there was a (relatively simple) way to keep track of which user created the object in the first place…</p>
 
-      <p>…Turns out, there is.  Active Record supports the aliasing of associations—meaning a “creator” attribute could be added to the Book model, without the need to create (yet another) model, Creator.  Since creators are, fundamentally, users, a book can belong to a creator, and Active Record “taught” that a creator is really a user:</p>
+      <p>…Turns out, there is.  Active Record supports the aliasing of associations—meaning a “creator” attribute could be added to the Book model, without the need to migrate (yet another) model, Creator.  Since creators are, fundamentally, users, a book can belong to a creator, and Active Record “taught” that a creator is really a user:</p>
 
       <pre>
         <code>
         class Book < ActiveRecord::Base
         	has_many :user_books
-        	has_many :users, through: :user_books #links books and users via a join
+        	has_many :users, through: :user_books <span style="color:blue"> # links books and users via a join</span>
 
-        	belongs_to :creator,  :class_name => “User”  #here’s the magic
+        	belongs_to :creator,  :class_name => “User”  <span style="color:blue"> # here’s the magic</span>
         end
         </code>
       </pre>
 
-      <p>In that last line of code, :class_name => “User” translates into vernacular English, more or less, as “hey, when you see a foreign key creator_id in the Books table, don’t go looking for a Creators table; instead, understand that creator_id just points to a User, so look it up in the Users table.”</p>
+      <p>In that last line of code, <code>:class_name => “User”</code> translates into vernacular English, more or less, as “hey, when you see a foreign key <code>creator_id</code> in the Books table, don’t go looking for a Creators table; instead, understand that <code>creator_id</code> just points to a User, so look it up in the Users table.”</p>
 
-      <p>This aliasing is important because it allows a Book to have a creator_id attribute—or a way to keep track of which user initially creates the object in the database, as opposed to those who merely find it in order to add the book to their collection.  Fantastic!  But if the controller action calls find_or_create_by(), how is this creator_id going to be implemented?</p>
+      <p>This aliasing is important because it allows a Book to have a <code>creator_id</code> attribute—or a way to keep track of which user initially creates the object in the database, as opposed to those who merely find it in order to add the book to their collection.  Fantastic!  But if the controller action calls <code>find_or_create_by()</code>, how is this <code>creator_id</code> going to be implemented?</p>
 
-      <p>Active Record to the rescue again!  The find_or_create_by() method can be used with a block:</p>
+      <p>Active Record to the rescue again!  The <code>find_or_create_by()</code> method can be used with a block:</p>
 
       <pre>
         <code>
@@ -58,15 +58,18 @@
         </code>
       </pre>
 
-      <p>The block is only executed when the book object is being created.  When the book object is accessed the second, third, and nth times—via the find part of the method—the block is ignored.  So what happens with Jack and Jill?  Again, in vernacular:
-      	1. Jack (user_id = 1) submits a request to add a new book, Nursery Rhymes by Mother Goose, to his collection.
-      	2. Active Record looks for a matching record in the database; it doesn’t exist, 	so it creates a new book object .
-      	3. Since the object is created, the block code is executed, and the creator_id is set to 1, because Jack is the current user.
-      	4. Jill (user_id = 2) logs in, and submits a request to add a new book, Nursery Rhymes by Mother Goose, to her collection.
-      	5. Active Record looks for a matching record in the database; it exists, so the previously created record is returned.
-      	6. Since the object is found—not created—the block code is ignored, and the creator_id attribute maintains its value of 1.</p>
+      <p>The block is only executed when the book object is being created.  When the book object is accessed the second, third, and nth times—via the find part of the method—the block is ignored.  So what happens with Jack and Jill?  Again, in vernacular:</p>
 
-      <p>And why does all of this matter?  Suppose Jill still decides she really doesn’t like Nursery Rhymes after all.  The Controller action says “Book model, get me this book Jill (no longer) wants.”  Active Record fetches the corresponding record from the database, returns it to the Controller.  Based on appropriate logic in the route action, the Controller says ‘Wait!  Jill didn’t create this record—so she can only remove it from her collection, not from the database.  View, render accordingly.”  View sends HTML to the Controller, which is sent on to Jill in response.  End result?  Jill sees that Nursery Rhymes by Mother Goose is no longer in her collection of Finer Things—but when Jack logs in later, the book is still in his collection, because the record still exists in the database.</p>
+			<ol>
+      	1. Jack (<code>user_id = 1</code>) submits a request to add a new book, <em>Nursery Rhymes</em> by Mother Goose, to his collection.
+      	2. Active Record looks for a matching record in the database; it doesn’t exist, so it creates a new book object.
+      	3. Since the object is created, the block code is executed, and the <code>creator_id</code> is set to 1, because Jack is the current user.
+      	4. Jill (<code>user_id = 2</code>) logs in, and submits a request to add a new book, <em>Nursery Rhymes</em> by Mother Goose, to her collection.
+      	5. Active Record looks for a matching record in the database; it exists, so the previously created record is returned.
+      	6. Since the object is found—not created—the block code is ignored, and the <code>creator_id</code> attribute maintains its value of 1.
+			</ol>
+
+      <p>Why does all of this matter?  Suppose Jill still decides she really doesn’t like <em>Nursery Rhymes</em> after all.  The Controller action says “Book model, get me this book Jill (no longer) wants.”  Active Record fetches the corresponding record from the database, returns it to the Controller.  Based on appropriate logic in the route action, the Controller says ‘Wait!  Jill didn’t create this record—so she can only remove it from her collection, not from the database.  View, render accordingly.”  View sends HTML to the Controller, which is sent on to Jill in response.  End result?  Jill sees that <em>Nursery Rhymes</em> by Mother Goose is no longer in her collection of Finer Things—but when Jack logs in later, the book is still in his collection, because the record still exists in the database.</p>
 
       <p>For those of you keeping score (and you know who you are), this doesn’t describe a complete solution.  Jack, as the record’s creator, can still delete it from the database—emptying out Jill’s collection without her being any the wiser!  One fix would be to eliminate database deletion actions all together by (casual) users—but that wouldn’t meet project requirements.  And besides, nursery rhymes are kind of like fairy tales: in a happily-ever-after world, Jack would never be so mean to Jill.</p>
     </section>

@@ -179,7 +179,13 @@ em{
 
 pre code{
   display: block;
-  background-color: #EEE;
   border: 1px solid #000;
   padding: 20px;
+}
+
+code {
+  font-family: monospace;
+  font-size: 1em;
+  background-color: #DDD;
+  padding: 2px;
 }
